@@ -22,7 +22,8 @@ int main(int, char**){
 	
 	namedWindow("Janela01",WINDOW_AUTOSIZE);
 
-	//Verifica se há necessidade de troca de valores para for ser sempre crescente.
+	//Verifica se há necessidade de troca de 
+	//valores para for ser sempre crescente.
 	if(x1 > x2){
 		int aux;
 		aux = x2;
@@ -36,7 +37,8 @@ int main(int, char**){
 		y1 = aux;
 	}
 
-	//Loop para preenchimento da regiao escolhida com o negativo de cada pixel.
+	//Loop para preenchimento da regiao escolhida
+	// com o negativo de cada pixel.
 	for(int i=x1 ; i<x2 ; i++){
 		for(int j=y1 ; j<y2 ; j++){
 			image.at<uchar>(i,j) = 255 - image.at<uchar>(i,j);

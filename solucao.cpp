@@ -31,7 +31,9 @@ int main(int argc, char** argv){
 
   for(int i=0; i<height; i++){
     for(int j=0; j<width; j++){
-      if(image.at<Vec3b>(i,j)[0] == 255 && image.at<Vec3b>(i,j)[1] == 255 && image.at<Vec3b>(i,j)[2] == 255){
+      if( image.at<Vec3b>(i,j)[0] == 255 && 
+          image.at<Vec3b>(i,j)[1] == 255 && 
+          image.at<Vec3b>(i,j)[2] == 255){
   		// achou um objeto
   		nobjects++;
       r++;

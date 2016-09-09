@@ -28,21 +28,29 @@ int main(int, char**){
 	//Percorrer toda a matriz auxiliar para trocar as regioes
 	for(int i=0; i<largura ; i++){
 		for(int j=0 ; j<altura ; j++){
-			// Regiao superior esquerda da imagem 2 receber a regiao inferior direita da imagem original.
+			// Regiao superior esquerda da imagem 2 receber
+			// a regiao inferior direita da imagem original.
 			if(i<largura/2 && j<altura/2){
-				image2.at<uchar>(i,j) = image.at<uchar>(i+largura/2,j+altura/2);
+				image2.at<uchar>(i,j) = 
+					image.at<uchar>(i+largura/2,j+altura/2);
 			}else
-			// Regiao inferior esquerda da imagem 2 receber a regiao superior direita da imagem original.
+			// Regiao inferior esquerda da imagem 2 receber
+			// a regiao superior direita da imagem original.
 			if(i<largura/2 && j>=altura/2){
-				image2.at<uchar>(i,j) = image.at<uchar>(i+largura/2,j-altura/2);
+				image2.at<uchar>(i,j) = 
+					image.at<uchar>(i+largura/2,j-altura/2);
 			}else
-			// Regiao superior direita da imagem 2 receber a regiao inferior esquerda da imagem original.
+			// Regiao superior direita da imagem 2 receber 
+			//a regiao inferior esquerda da imagem original.
 			if(i>=largura/2 && j<altura/2){
-				image2.at<uchar>(i,j) = image.at<uchar>(i-largura/2,j+altura/2);
+				image2.at<uchar>(i,j) = 
+					image.at<uchar>(i-largura/2,j+altura/2);
 			}else
-			// Regiao inferior direita da imagem 2 receber a regiao superior esquerda da imagem original.
+			// Regiao inferior direita da imagem 2 receber 
+			//a regiao superior esquerda da imagem original.
 			if(i>=largura/2 && j>=altura/2){
-				image2.at<uchar>(i,j) = image.at<uchar>(i-largura/2,j-altura/2);
+				image2.at<uchar>(i,j) = 
+					image.at<uchar>(i-largura/2,j-altura/2);
 			}			
 		}
 	}

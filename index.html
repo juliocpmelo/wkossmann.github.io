@@ -475,7 +475,8 @@ int main(int, char**){
 
 	namedWindow("Janela01",WINDOW_AUTOSIZE);
 
-	//Verifica se há necessidade de troca de valores para for ser sempre crescente.
+	//Verifica se há necessidade de troca de
+	//valores para for ser sempre crescente.
 	if(x1 &gt; x2){
 		int aux;
 		aux = x2;
@@ -489,7 +490,8 @@ int main(int, char**){
 		y1 = aux;
 	}
 
-	//Loop para preenchimento da regiao escolhida com o negativo de cada pixel.
+	//Loop para preenchimento da regiao escolhida
+	// com o negativo de cada pixel.
 	for(int i=x1 ; i&lt;x2 ; i++){
 		for(int j=y1 ; j&lt;y2 ; j++){
 			image.at&lt;uchar&gt;(i,j) = 255 - image.at&lt;uchar&gt;(i,j);
@@ -562,21 +564,29 @@ int main(int, char**){
 	//Percorrer toda a matriz auxiliar para trocar as regioes
 	for(int i=0; i&lt;largura ; i++){
 		for(int j=0 ; j&lt;altura ; j++){
-			// Regiao superior esquerda da imagem 2 receber a regiao inferior direita da imagem original.
+			// Regiao superior esquerda da imagem 2 receber
+			// a regiao inferior direita da imagem original.
 			if(i&lt;largura/2 &amp;&amp; j&lt;altura/2){
-				image2.at&lt;uchar&gt;(i,j) = image.at&lt;uchar&gt;(i+largura/2,j+altura/2);
+				image2.at&lt;uchar&gt;(i,j) =
+					image.at&lt;uchar&gt;(i+largura/2,j+altura/2);
 			}else
-			// Regiao inferior esquerda da imagem 2 receber a regiao superior direita da imagem original.
+			// Regiao inferior esquerda da imagem 2 receber
+			// a regiao superior direita da imagem original.
 			if(i&lt;largura/2 &amp;&amp; j&gt;=altura/2){
-				image2.at&lt;uchar&gt;(i,j) = image.at&lt;uchar&gt;(i+largura/2,j-altura/2);
+				image2.at&lt;uchar&gt;(i,j) =
+					image.at&lt;uchar&gt;(i+largura/2,j-altura/2);
 			}else
-			// Regiao superior direita da imagem 2 receber a regiao inferior esquerda da imagem original.
+			// Regiao superior direita da imagem 2 receber
+			//a regiao inferior esquerda da imagem original.
 			if(i&gt;=largura/2 &amp;&amp; j&lt;altura/2){
-				image2.at&lt;uchar&gt;(i,j) = image.at&lt;uchar&gt;(i-largura/2,j+altura/2);
+				image2.at&lt;uchar&gt;(i,j) =
+					image.at&lt;uchar&gt;(i-largura/2,j+altura/2);
 			}else
-			// Regiao inferior direita da imagem 2 receber a regiao superior esquerda da imagem original.
+			// Regiao inferior direita da imagem 2 receber
+			//a regiao superior esquerda da imagem original.
 			if(i&gt;=largura/2 &amp;&amp; j&gt;=altura/2){
-				image2.at&lt;uchar&gt;(i,j) = image.at&lt;uchar&gt;(i-largura/2,j-altura/2);
+				image2.at&lt;uchar&gt;(i,j) =
+					image.at&lt;uchar&gt;(i-largura/2,j-altura/2);
 			}
 		}
 	}
@@ -656,7 +666,9 @@ int main(int argc, char** argv){
 
   for(int i=0; i&lt;height; i++){
     for(int j=0; j&lt;width; j++){
-      if(image.at&lt;Vec3b&gt;(i,j)[0] == 255 &amp;&amp; image.at&lt;Vec3b&gt;(i,j)[1] == 255 &amp;&amp; image.at&lt;Vec3b&gt;(i,j)[2] == 255){
+      if( image.at&lt;Vec3b&gt;(i,j)[0] == 255 &amp;&amp;
+          image.at&lt;Vec3b&gt;(i,j)[1] == 255 &amp;&amp;
+          image.at&lt;Vec3b&gt;(i,j)[2] == 255){
   		// achou um objeto
   		nobjects++;
       r++;
@@ -696,10 +708,548 @@ int main(int argc, char** argv){
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_ecercicio_2_cap_4">Ecercicio 2 - Cap.4</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Para a solução deste problema foi definido os seguintes passos:</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>Percorrer as bordas da imagem, e ao encontrar algum objeto na imagem, é feito o flood fill para a cor do fundo, para que assim aquele objeto não interfira nas contagens.</p>
+</li>
+<li>
+<p>Executar loop de rotulação semelhante ao do exemplo disponibilizado.</p>
+</li>
+<li>
+<p>Ao termino do loop, encontrar o fundo da imagem e excutar apenas um flood fill para um ton de cinza que não interfira na contagem.</p>
+</li>
+<li>
+<p>Neste ponto, temos que todos os buracos estão com o ton de cinza do fundo inicial (0). Assim é percorrida a matriz inteira a cada objeto encontrado para verficar se há um buraco pertecente a ele, utilizando de uma variavel auxiliar para guardar o ultimo ton de cinza verificado. Caso o ton de cinza atual for 0 e o ton de cinza anterior seja igual ao da rotulação do objeto que está sendo verificado, logo este objeto possui um buraco, e é contabilizado apenas uma vez, idependendo da quantidade de buracos.</p>
+</li>
+</ol>
+</div>
+</li>
+</ul>
+</div>
+<div id="exa_cntBolhas" class="listingblock">
+<div class="title">conta_bolhas_buraco.cpp</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp">#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv){
+  Mat image, mask;
+  int width, height;
+  int nobjects;
+
+  CvPoint p;
+  image = imread(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
+
+  if(!image.data){
+    std::cout &lt;&lt; "imagem nao carregou corretamente\n";
+    return(-1);
+  }
+  width=image.size().width;
+  height=image.size().height;
+
+  //retirar elementos das bordas:
+  for(int i=0; i&lt;height; i++){
+    if(image.at&lt;uchar&gt;(i,0) == 255){
+      p.x=0;
+      p.y=i;
+      floodFill(image,p,0);
+    }
+    if(image.at&lt;uchar&gt;(i,width-1) == 255){
+      p.x=width-1;
+      p.y=i;
+      floodFill(image,p,0);
+    }
+  }
+  for(int j=0; j&lt;width; j++){
+    if(image.at&lt;uchar&gt;(0,j) == 255){
+      p.x=j;
+      p.y=0;
+      floodFill(image,p,0);
+    }
+    if(image.at&lt;uchar&gt;(height-1,j) == 255){
+      p.x=j;
+      p.y=height-1;
+      floodFill(image,p,0);
+    }
+  }
+  imshow("passo1", image);
+  imwrite("passo1.png", image);
+
+
+
+
+  p.x=0;
+  p.y=0;
+
+  // busca por bolha c ou sem buraco
+  nobjects=0;
+  for(int i=0; i&lt;height; i++){
+    for(int j=0; j&lt;width; j++){
+      if(image.at&lt;uchar&gt;(i,j) == 255){
+  		// achou um objeto
+  		nobjects++;
+  		p.x=j;
+  		p.y=i;
+  		floodFill(image,p,nobjects);
+  	  }
+  	}
+  }
+  imshow("passo2", image);
+  imwrite("passo2.png", image);
+
+
+  bool flag = false;
+  //preenche o fundo com com o ultimo ton de cinza encontrado +1
+  //para poder encontrar os buracos posteriormente
+  for(int i=0; i&lt;height; i++){
+    for(int j=0; j&lt;width; j++){
+      if(image.at&lt;uchar&gt;(i,j) == 0){
+        p.x=j;
+        p.y=i;
+        floodFill(image,p,nobjects+1);
+        flag = true;
+        break;
+      }
+    }
+    if(flag) break;
+  }
+  imshow("passo3", image);
+  imwrite("passo3.png", image);
+
+
+  int nburaco = 0;
+  int pixAnterior=0;
+  bool temBuraco=false;
+  for(int k=nobjects; k&gt;0; k--){
+    for(int i=0; i&lt;height; i++){
+      for(int j=0; j&lt;width; j++){
+        if(pixAnterior==k){
+          if(image.at&lt;uchar&gt;(i,j) == 0){
+            temBuraco=true;
+            p.x=j;
+            p.y=i;
+            floodFill(image,p,k+nobjects+1);
+          }
+        }
+        pixAnterior = image.at&lt;uchar&gt;(i,j);
+      }
+    }
+    if(temBuraco){
+      nburaco++;
+    }
+    temBuraco=false;
+  }
+
+  cout &lt;&lt; "Numero de bolhas total:     " &lt;&lt; nobjects &lt;&lt; endl;
+  cout &lt;&lt; "Numero de bolhas c/ buracos:" &lt;&lt; nburaco  &lt;&lt; endl;
+  cout &lt;&lt; "Numero de bolhas s/ buracos:" &lt;&lt; nobjects - nburaco &lt;&lt; endl;
+
+  imshow("passo4", image);
+  imwrite("passo4.png", image);
+  waitKey();
+  return 0;
+}</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Exemplo de aplicação:</p>
+</li>
+</ul>
+</div>
+<div id="fig_bolhas2" class="imageblock">
+<div class="content">
+<img src="bolhas2.png" alt="bolhas2">
+</div>
+<div class="title">Figure 5. Imagem bolhas2.png</div>
+</div>
+<div id="fig_passo1" class="imageblock">
+<div class="content">
+<img src="passo1.png" alt="passo1">
+</div>
+<div class="title">Figure 6. Passo a.</div>
+</div>
+<div id="fig_passo2" class="imageblock">
+<div class="content">
+<img src="passo2.png" alt="passo2">
+</div>
+<div class="title">Figure 7. Passo b.</div>
+</div>
+<div id="fig_passo3" class="imageblock">
+<div class="content">
+<img src="passo3.png" alt="passo3">
+</div>
+<div class="title">Figure 8. Passo c.</div>
+</div>
+<div id="fig_passo4" class="imageblock">
+<div class="content">
+<img src="passo4.png" alt="passo4">
+</div>
+<div class="title">Figure 9. Passo d.</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Saida textual:</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Numero de bolhas total:     16</p>
+</div>
+<div class="paragraph">
+<p>Numero de bolhas c/ buracos: 5</p>
+</div>
+<div class="paragraph">
+<p>Numero de bolhas s/ buracos: 11</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exercicio_1_cap_5">Exercicio 1 - Cap.5</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Utilizada uma função otimizada do opencv de aplicação da formula de equalização.</p>
+</li>
+</ul>
+</div>
+<div id="exa_equalize" class="listingblock">
+<div class="title">equalize.cpp</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp">#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv){
+  Mat image, imageEqualizada;
+  VideoCapture cap;
+
+  cap.open(0);
+
+  if(!cap.isOpened()){
+    cout &lt;&lt; "cameras indisponiveis";
+    return -1;
+  }
+
+  while(1){
+    cap &gt;&gt; image;
+
+    /// Convert to grayscale
+    cvtColor( image, image, CV_BGR2GRAY );
+
+    /// Apply Histogram Equalization
+    equalizeHist( image, imageEqualizada );
+
+    imshow( "Original", image );
+    imshow( "Equalizada", imageEqualizada );
+
+    if(waitKey(30) &gt;= 0) break;
+  }
+  imwrite("Original.png",image);
+  imwrite("Equalizada.png", imageEqualizada);
+
+  return 0;
+}</code></pre>
+</div>
+</div>
+<div id="fig_Original1" class="imageblock">
+<div class="content">
+<img src="Original1.png" alt="Original1">
+</div>
+<div class="title">Figure 10. Original ambiente claro</div>
+</div>
+<div id="fig_Equalizada1" class="imageblock">
+<div class="content">
+<img src="Equalizada1.png" alt="Equalizada1">
+</div>
+<div class="title">Figure 11. Equalizada ambiente claro</div>
+</div>
+<div id="fig_Original2" class="imageblock">
+<div class="content">
+<img src="Original2.png" alt="Original2">
+</div>
+<div class="title">Figure 12. Original ambiente escuro</div>
+</div>
+<div id="fig_Equalizada2" class="imageblock">
+<div class="content">
+<img src="Equalizada2.png" alt="Equalizada2">
+</div>
+<div class="title">Figure 13. Equalizada ambiente escuro</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exercicio_2_cap_5">Exercicio 2 - Cap.5</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Para a solução deste problema, foi feita o calculo de histograma, e feita a subtração absoluta do histograma do frame anterior e armazenado em um somador. Se este valor ultrapassase um determinado valor (obtido a partir de testes) é gerado um "ALERTA" na saida do terminal.</p>
+</li>
+</ul>
+</div>
+<div id="exa_motiondetector" class="listingblock">
+<div class="title">motiondetector.cpp</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp">#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv){
+  Mat image;
+  int width, height;
+  VideoCapture cap;
+  vector&lt;Mat&gt; planes;
+  Mat histP, histA;
+  int nbins = 64;
+  float range[] = {0, 256};
+  const float *histrange = { range };
+  bool uniform = true;
+  bool acummulate = false;
+
+  cap.open(0);
+
+  if(!cap.isOpened()){
+    cout &lt;&lt; "cameras indisponiveis";
+    return -1;
+  }
+
+  width  = cap.get(CV_CAP_PROP_FRAME_WIDTH);
+  height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+  cout &lt;&lt; "largura = " &lt;&lt; width &lt;&lt; endl;
+  cout &lt;&lt; "altura  = " &lt;&lt; height &lt;&lt; endl;
+
+  cap &gt;&gt; image;
+  split (image, planes);
+
+  calcHist(&amp;planes[0], 1, 0, Mat(), histA, 1,
+           &amp;nbins, &amp;histrange,
+           uniform, acummulate);
+  int cnt = 0;
+  while(1){
+    cap &gt;&gt; image;
+    split (image, planes);
+
+    calcHist(&amp;planes[0], 1, 0, Mat(), histP, 1,
+             &amp;nbins, &amp;histrange,
+             uniform, acummulate);
+
+    float soma = 0;
+    for(int i=0; i&lt;nbins; i++){
+      soma += abs(cvRound(histP.at&lt;float&gt;(i)) -
+                  cvRound(histA.at&lt;float&gt;(i)));
+    }
+    if(soma &gt; 9000){
+      cout &lt;&lt; "ALERTA " &lt;&lt; cnt &lt;&lt; endl;
+      cnt++;
+      if(cnt&gt;10000) cnt=0;
+    }
+
+    histA = histP.clone();
+
+    imshow("image", image);
+    if(waitKey(30) &gt;= 0) break;
+  }
+  return 0;
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exercicio_cap_6">Exercicio - Cap.6</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>A filtragem é originada a partir de da convolução da imagem com uma matriz denotada de mascara. Para a aplicação de dois filtros seguidos, pela propriedade de convolução, ao invez de filtrar em um e a saida desse filtrar no segundo, podemos unir as duas mascaras. Com base nisso para fazer a aplicação de laplaciano em cima do gaussiano, podemos fazer a multiplicação das duas mascaras (gaussiano x laplaciano), a partir dai temos a mascara equivalente das duas aplicações dos filtros.</p>
+</li>
+</ul>
+</div>
+<div id="exa_laplgauss" class="listingblock">
+<div class="title">laplgauss.cpp</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cpp">#include &lt;iostream&gt;
+#include &lt;opencv2/opencv.hpp&gt;
+
+using namespace cv;
+using namespace std;
+
+void printmask(Mat &amp;m){
+  for(int i=0; i&lt;m.size().height; i++){
+    for(int j=0; j&lt;m.size().width; j++){
+      cout &lt;&lt; m.at&lt;float&gt;(i,j) &lt;&lt; ",";
+    }
+    cout &lt;&lt; endl;
+  }
+}
+
+void menu(){
+  cout &lt;&lt; "\npressione a tecla para ativar o filtro: \n"
+	"a - calcular modulo\n"
+    "m - media\n"
+    "g - gauss\n"
+    "v - vertical\n"
+	 "h - horizontal\n"
+    "l - laplaciano\n"
+    "w - laplaciano do gaussiano\n"
+    "s - salvar\n"
+	"esc - sair\n";
+}
+
+int main(int argvc, char** argv){
+  VideoCapture video;
+  float media[] =
+          {1,1,1,
+				   1,1,1,
+				   1,1,1};
+  float gauss[] =
+          {1,2,1,
+				   2,4,2,
+				   1,2,1};
+  float horizontal[]=
+          {-1,0,1,
+					 -2,0,2,
+					 -1,0,1};
+  float vertical[]=
+          {-1,-2,-1,
+					 0,0,0,
+					 1,2,1};
+  float laplacian[]=
+          {0,-1,0,
+					 -1,4,-1,
+					 0,-1,0};
+  float laplacedegauss[]=
+    {-2,6 ,-2,
+     -4,12,-4
+     -2,6 ,-2};
+
+  Mat cap, frame, frame32f, frameFiltered;
+  Mat mask(3,3,CV_32F), mask1;
+  Mat result, result1;
+  double width, height, min, max;
+  int absolut;
+  char key;
+
+  video.open(0);
+  if(!video.isOpened())
+    return -1;
+  width=video.get(CV_CAP_PROP_FRAME_WIDTH);
+  height=video.get(CV_CAP_PROP_FRAME_HEIGHT);
+  std::cout &lt;&lt; "largura=" &lt;&lt; width &lt;&lt; "\n";;
+  std::cout &lt;&lt; "altura =" &lt;&lt; height&lt;&lt; "\n";;
+
+  namedWindow("filtroespacial",1);
+
+  mask = Mat(3, 3, CV_32F, media);
+  scaleAdd(mask, 1/9.0, Mat::zeros(3,3,CV_32F), mask1);
+  swap(mask, mask1);
+  absolut=1; // calcs abs of the image
+
+  menu();
+  for(;;){
+    video &gt;&gt; cap;
+    cvtColor(cap, frame, CV_BGR2GRAY);
+    flip(frame, frame, 1);
+    imshow("original", frame);
+    frame.convertTo(frame32f, CV_32F);
+    filter2D(frame32f, frameFiltered, frame32f.depth(), mask, Point(1,1), 0);
+    if(absolut){
+      frameFiltered=abs(frameFiltered);
+    }
+    frameFiltered.convertTo(result, CV_8U);
+    imshow("filtroespacial", result);
+    key = (char) waitKey(10);
+    if( key == 27 ) break; // esc pressed!
+    switch(key){
+    case 'a':
+	  menu();
+      absolut=!absolut;
+      break;
+    case 'm':
+	  menu();
+      mask = Mat(3, 3, CV_32F, media);
+      scaleAdd(mask, 1/9.0, Mat::zeros(3,3,CV_32F), mask1);
+      mask = mask1;
+      printmask(mask);
+      break;
+    case 'g':
+	  menu();
+      mask = Mat(3, 3, CV_32F, gauss);
+      scaleAdd(mask, 1/16.0, Mat::zeros(3,3,CV_32F), mask1);
+      mask = mask1;
+      printmask(mask);
+      break;
+    case 'h':
+	  menu();
+      mask = Mat(3, 3, CV_32F, horizontal);
+      printmask(mask);
+      break;
+    case 'v':
+	  menu();
+      mask = Mat(3, 3, CV_32F, vertical);
+      printmask(mask);
+      break;
+    case 'l':
+	  menu();
+      mask = Mat(3, 3, CV_32F, laplacian);
+      printmask(mask);
+      break;
+    case 'w':
+    menu();
+      mask = Mat(3, 3, CV_32F, laplacedegauss);
+      scaleAdd(mask, 1/16.0, Mat::zeros(3,3,CV_32F), mask1);
+      mask = mask1;
+      printmask(mask);
+      break;
+    case 's':
+      imwrite("resultado.png", result);
+      break;
+    default:
+      break;
+    }
+  }
+  return 0;
+}</code></pre>
+</div>
+</div>
+<div id="fig_resultadoLaplace" class="imageblock">
+<div class="content">
+<img src="resultadoLaplace.png" alt="resultadoLaplace">
+</div>
+<div class="title">Figure 14. Resultado Laplaciando simples</div>
+</div>
+<div id="fig_resultadoLaplGaus" class="imageblock">
+<div class="content">
+<img src="resultadoLaplGaus.png" alt="resultadoLaplGaus">
+</div>
+<div class="title">Figure 15. Resultado Laplaciando apos Gaussiano</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2016-09-09 05:50:52 BRT
+Last updated 2016-09-09 06:43:43 BRT
 </div>
 </div>
 <script type="text/x-mathjax-config">
